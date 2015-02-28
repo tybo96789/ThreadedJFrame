@@ -8,13 +8,18 @@ package jframe;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 /**
  *
- * @author Tyler
+ * @author Tyler Atiburcio
  */
 public abstract class ExtendedJFrame extends JFrame implements Runnable{
     
@@ -31,6 +36,11 @@ public abstract class ExtendedJFrame extends JFrame implements Runnable{
         //Panel Stuff
         private ArrayList<Container> containers = new ArrayList<Container>();
         private JPanel panel = new JPanel();
+        
+        //Menu Bar
+        private JMenuBar menuBar = new JMenuBar();
+        private JMenu mainMenu = new JMenu("File");
+        private JMenuItem exitItem = new JMenuItem("Exit");
         
         public ExtendedJFrame()
         {
@@ -63,6 +73,31 @@ public abstract class ExtendedJFrame extends JFrame implements Runnable{
             Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
             this.setMaximizedBounds(null);
             this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height / 2 - this.getSize().height / 2);
+        }
+        
+        protected void buildJMenu()
+        {
+            //Attach JMenubar to Frame
+            this.setJMenuBar(menuBar);
+            this.menuBar.add(this.mainMenu);
+            
+            //Make MenuItem Mnemonic
+            this.exitItem.setMnemonic('X');
+            
+            //Register Listeners to MenuItems
+            this.exitItem.addActionListener(new ExitListener());
+            
+            //Add MenuItems to menuBar
+            this.mainMenu.add(this.exitItem);
+        }
+        
+        protected class ExitListener implements ActionListener{
+
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+            INSTANCE.dispose();
+        }
+            
         }
         
         
