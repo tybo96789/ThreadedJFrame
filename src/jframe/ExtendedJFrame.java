@@ -22,7 +22,7 @@ import javax.swing.JPanel;
  * @author Tyler Atiburcio
  */
 public abstract class ExtendedJFrame extends JFrame implements Runnable{
-    
+
     public static final int DEFAULT_WIDTH = 500, DEFAULT_HEIGHT = 500;
     public static final String DEFAULT_TITLE = "Window";
     
@@ -34,8 +34,8 @@ public abstract class ExtendedJFrame extends JFrame implements Runnable{
         protected final String TITLE;
 
         //Panel Stuff
-        private ArrayList<Container> containers = new ArrayList<Container>();
-        private JPanel panel = new JPanel();
+        protected ArrayList<Container> containers = new ArrayList<Container>();
+        protected JPanel panel = new JPanel();
         
         //Menu Bar
         private JMenuBar menuBar = new JMenuBar();
@@ -44,15 +44,11 @@ public abstract class ExtendedJFrame extends JFrame implements Runnable{
         
         public ExtendedJFrame()
         {
-            this.TITLE = ExtendedJFrame.DEFAULT_TITLE;
-            this.INITAL_HEIGHT = ExtendedJFrame.DEFAULT_HEIGHT;
-            this.INITAL_WIDTH = ExtendedJFrame.DEFAULT_WIDTH;
+            this(ExtendedJFrame.DEFAULT_TITLE,ExtendedJFrame.DEFAULT_HEIGHT,ExtendedJFrame.DEFAULT_WIDTH);
         }
         public ExtendedJFrame(String title)
         {
-            this.TITLE = title;
-            this.INITAL_HEIGHT = ExtendedJFrame.DEFAULT_HEIGHT;
-            this.INITAL_WIDTH = ExtendedJFrame.DEFAULT_WIDTH;
+            this(title,ExtendedJFrame.DEFAULT_HEIGHT,ExtendedJFrame.DEFAULT_WIDTH);
         }
         
         public ExtendedJFrame(String title, int width, int height)
@@ -60,6 +56,9 @@ public abstract class ExtendedJFrame extends JFrame implements Runnable{
             this.TITLE = title;
             this.INITAL_HEIGHT = height;
             this.INITAL_WIDTH = width;
+            
+            this.setTitle(this.TITLE);
+            this.setSize(INITAL_HEIGHT,INITAL_WIDTH);
         }
         
     @Override
