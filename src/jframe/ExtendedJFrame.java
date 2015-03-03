@@ -13,6 +13,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -21,12 +22,15 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.stage.FileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -136,6 +140,8 @@ public abstract class ExtendedJFrame extends JFrame implements Runnable{
         
 }
 class ExternalizedConsole extends OutputStream{
+    protected final ExternalizedConsole CONSOLE = this;
+    
     protected final JTextArea area = new JTextArea();
     private final JFrame frame;
     private final JConsole jcon = new JConsole();
@@ -144,6 +150,7 @@ class ExternalizedConsole extends OutputStream{
     public ExternalizedConsole()
     {
         this.frame = jcon.INSTANCE;
+        this.area.setEditable(false);
         this.thread = new Thread(jcon);
         this.thread.start();
     }
@@ -158,7 +165,15 @@ class ExternalizedConsole extends OutputStream{
     
     private final class JConsole extends ExtendedJFrame{
         
+        
         private final JScrollPane scroll = new JScrollPane(area);
+        
+        private JMenuBar menuBar = new JMenuBar();
+        private JMenu mainMain = new JMenu("File");
+        private JMenuItem clearItem = new JMenuItem("Clear");
+        private JMenuItem closeItem = new JMenuItem("Close");
+        private JMenuItem saveItem = new JMenuItem("Save to File");
+        
         
         public JConsole()
         {
@@ -220,6 +235,51 @@ class ExternalizedConsole extends OutputStream{
                     //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
                 }
             });
+            this.setJMenuBar(menuBar);
+            this.menuBar.add(this.mainMain);
+            this.mainMain.add(this.clearItem);
+            this.clearItem.addActionListener(new ActionListener(){
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    CONSOLE.area.setText("");
+                }
+            });
+            this.mainMain.add(this.closeItem);
+            this.closeItem.addActionListener(new ActionListener(){
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    System.setOut(System.out);
+                    System.setErr(System.err);
+                    INSTANCE.dispose();
+                    Thread.currentThread().interrupt();
+                }
+            });
+            
+            this.mainMain.add(this.saveItem);
+            this.saveItem.addActionListener(new ActionListener(){
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    File file =null;
+                    PrintStream ps = null;
+                    FileChooser fc = new FileChooser();
+                    try{
+                        //file = fc.showSaveDialog(null);
+                        //ps = new PrintStream(file);
+                        ps = new PrintStream(new Date().toString() + "_console_Log.txt");
+                        
+                        ps.println(CONSOLE.area.getText().toCharArray());
+                        ps.flush();
+                        ps.close();
+                        
+                    }catch(Exception ex){
+                        JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            });
+            
             
             
         }
