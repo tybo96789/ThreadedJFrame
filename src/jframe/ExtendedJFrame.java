@@ -13,19 +13,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.stage.FileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -36,9 +28,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 
-/**
+/**Basic JFrame with basic features for easy extendability and runability 
  *
  * @author Tyler Atiburcio
+ * @version 1.0
  */
 public abstract class ExtendedJFrame extends JFrame implements Runnable{
 
@@ -262,9 +255,9 @@ class ExternalizedConsole extends OutputStream{
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    File file =null;
+                    //File file =null;
                     PrintStream ps = null;
-                    FileChooser fc = new FileChooser();
+                    //FileChooser fc = new FileChooser();
                     try{
                         //file = fc.showSaveDialog(null);
                         //ps = new PrintStream(file);
