@@ -7,15 +7,30 @@ package jframe;
 
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.io.FileWriter;
+import java.io.FilterOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.ScrollPaneConstants;
 
 /**
  *
@@ -40,7 +55,9 @@ public abstract class ExtendedJFrame extends JFrame implements Runnable{
         //Menu Bar
         private JMenuBar menuBar = new JMenuBar();
         private JMenu mainMenu = new JMenu("File");
+        private JMenu debugMenu = new JMenu("Debug");
         private JMenuItem exitItem = new JMenuItem("Exit");
+        private JMenuItem debugConsole = new JMenuItem("Debug Console");
         
         public ExtendedJFrame()
         {
@@ -79,15 +96,18 @@ public abstract class ExtendedJFrame extends JFrame implements Runnable{
             //Attach JMenubar to Frame
             this.setJMenuBar(menuBar);
             this.menuBar.add(this.mainMenu);
+            this.menuBar.add(this.debugMenu);
             
             //Make MenuItem Mnemonic
             this.exitItem.setMnemonic('X');
             
             //Register Listeners to MenuItems
             this.exitItem.addActionListener(new ExitListener());
+            this.debugConsole.addActionListener(new DebugConsoleListener());
             
             //Add MenuItems to menuBar
             this.mainMenu.add(this.exitItem);
+            this.debugMenu.add(this.debugConsole);
         }
         
         protected class ExitListener implements ActionListener{
@@ -99,6 +119,111 @@ public abstract class ExtendedJFrame extends JFrame implements Runnable{
             
         }
         
+        protected class DebugConsoleListener implements ActionListener
+        {
+
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+            ExternalizedConsole con = new ExternalizedConsole();
+            PrintStream ps = new PrintStream(con);
+            System.setOut(ps);
+            System.setErr(ps);
+        }
+            
+        }
+        
         
         
 }
+class ExternalizedConsole extends OutputStream{
+    protected final JTextArea area = new JTextArea();
+    private final JFrame frame;
+    private final JConsole jcon = new JConsole();
+    protected Thread thread;
+    
+    public ExternalizedConsole()
+    {
+        this.frame = jcon.INSTANCE;
+        this.thread = new Thread(jcon);
+        this.thread.start();
+    }
+
+    @Override
+    public void write(int i) throws IOException {
+        // redirects data to the text area
+        this.area.append(String.valueOf((char)i));
+        // scrolls the text area to the end of data
+        this.area.setCaretPosition(this.area.getDocument().getLength());
+    }
+    
+    private final class JConsole extends ExtendedJFrame{
+        
+        private final JScrollPane scroll = new JScrollPane(area);
+        
+        public JConsole()
+        {
+            super("Console");
+        }
+
+        @Override
+        public void run() {
+            this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+            super.center();
+            this.buildContainers();
+            this.setVisible(true);
+        }
+
+        @Override
+        protected void buildContainers() {
+            this.setLayout(new GridLayout(1,1));
+            this.add(this.scroll);
+            this.scroll.setAutoscrolls(true);
+            this.scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+            this.scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+            this.addWindowListener(new WindowListener(){
+
+                @Override
+                public void windowOpened(WindowEvent we) {
+                    //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+
+                @Override
+                public void windowClosing(WindowEvent we) {
+                    //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    System.setOut(System.out);
+                    System.setErr(System.err);
+                    Thread.currentThread().interrupt();
+                }
+
+                @Override
+                public void windowClosed(WindowEvent we) {
+                    //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+
+                @Override
+                public void windowIconified(WindowEvent we) {
+                    //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+
+                @Override
+                public void windowDeiconified(WindowEvent we) {
+                    //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+
+                @Override
+                public void windowActivated(WindowEvent we) {
+                    //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+
+                @Override
+                public void windowDeactivated(WindowEvent we) {
+                    //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+            });
+            
+            
+        }
+    
+}
+        
+    }
